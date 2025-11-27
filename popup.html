@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Privacy-Personality — Dashboard</title>
+
+<style>
+  :root{
+    --bg:#f5f7fb; --card:#ffffff; --muted:#6b7280;
+    --accent1:#5b6cff; --accent2:#7b3fe4; --radius:12px;
+  }
+  html,body{height:100%; margin:0; font-family: Inter, "Segoe UI", Roboto, Arial; background:var(--bg); color:#111;}
+  .wrap{width:780px; padding:18px; box-sizing:border-box;}
+  header{display:flex; gap:14px; align-items:center; margin-bottom:12px;}
+  .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,var(--accent1),var(--accent2)); color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+  h1{font-size:18px;margin:0}
+  .subtitle{color:var(--muted); font-size:13px}
+
+  .controls { display:flex; gap:10px; align-items:center; margin:12px 0; }
+  select, button { padding:10px 12px; border-radius:10px; border:1px solid #e6e9f0; background:#fff; }
+  button.primary { background: linear-gradient(90deg,var(--accent1),var(--accent2)); color:#fff; border:none; font-weight:600; }
+  .grid { display:grid; grid-template-columns: 1fr 360px; gap:16px; align-items:start; }
+
+  .card { background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:0 6px 18px rgba(42,54,80,0.06); }
+  .kpis { display:flex; gap:10px; margin-bottom:12px; }
+  .kpi { flex:1; background:linear-gradient(90deg,#fbfcff,#ffffff); padding:12px; border-radius:10px; text-align:left; }
+  .kpi .num { font-weight:700; font-size:18px; color:var(--accent1); }
+  .kpi .label { color:var(--muted); font-size:12px; margin-top:4px; }
+
+  h2.section { margin:0 0 8px 0; font-size:15px; display:flex; align-items:center; gap:8px; }
+  p.insight { color:#333; margin:8px 0 12px 0; line-height:1.4; }
+
+  .sites-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .site-pill { padding:6px 10px; background:#f1f4ff; border-radius:999px; font-size:12px; color:#223; border:1px solid #e7ecff; }
+
+  /* REQUIRED FIX: Chart canvases visible */
+  #barChart, #doughnutChart {
+    width: 100% !important;
+    height: 240px !important;
+    display: block;
+  }
+
+  .charts { display:flex; flex-direction:column; gap:12px; }
+  canvas { width:100% !important; height:220px !important; }
+
+  .actions { display:flex; gap:10px; margin-top:12px; }
+  .small { font-size:12px; color:var(--muted); }
+
+  footer { margin-top:12px; text-align:center; font-size:12px; color:var(--muted); }
+</style>
+
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">PP</div>
+      <div>
+        <h1>Privacy-Personality Analyzer</h1>
+        <div class="subtitle">Quick dashboard of your browsing behavior</div>
+      </div>
+    </header>
+
+    <div class="controls">
+      <label>
+        Period:
+        <select id="historyRange">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+      </label>
+
+      <button id="analyzeBtn" class="primary">🔎 Analyze</button>
+      <button id="exportBtn">📄 Export CSV</button>
+      <button id="getAI" style="margin-left:auto">🤖 Get AI Insights</button>
+    </div>
+
+    <div class="grid">
+      <div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h2 class="section">🎯 Your Digital Profile</h2>
+            <div class="small">
+              <div id="personalityBadge" style="background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:#fff; padding:6px 10px; border-radius:18px; font-weight:700">—</div>
+            </div>
+          </div>
+
+          <div class="kpis" style="margin-top:8px">
+            <div class="kpi"><div class="num" id="totalSites">0</div><div class="label">Sites Analyzed</div></div>
+            <div class="kpi"><div class="num" id="totalVisits">0</div><div class="label">Total Visits</div></div>
+            <div class="kpi"><div class="num" id="privacyScore">0%</div><div class="label">Privacy Awareness</div></div>
+          </div>
+
+          <div>
+            <h2 class="section">💡 Insight</h2>
+            <p id="insightText" class="insight small">—</p>
+          </div>
+
+          <div style="margin-top:8px">
+            <h2 class="section">🌐 Top sites</h2>
+            <div id="sitesList" class="sites-list small"></div>
+          </div>
+
+          <div class="actions">
+            <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="consentCheck" /> I consent to send aggregated summary</label>
+            <div style="flex:1"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT column charts -->
+      <div class="charts">
+        <div class="card">
+          <h2 class="section">📈 Top sites visits</h2>
+          <canvas id="barChart"></canvas>
+        </div>
+
+        <div class="card">
+          <h2 class="section">📊 Category distribution</h2>
+          <canvas id="doughnutChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <footer>All analysis runs locally. AI insights only sent with consent.</footer>
+  </div>
+
+  <!-- REQUIRED LOCAL SCRIPTS -->
+  <script src="libs/chart.min.js"></script>
+  <script src="popup.js"></script>
+
+</body>
+</html>
